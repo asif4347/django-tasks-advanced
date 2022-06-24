@@ -27,4 +27,63 @@
 
 
 {% endblock %}
+{% block extra_scripts %}
+
+    <script>
+        $(document).ready(function () {
+            $('.data-table').DataTable({
+                lengthMenu: [[-1, 1, 5, 2000, 5000], ["all", "1", "5", "2000", "5000"]],
+                "pageLength": 20
+            });
+            $("th>a").attr("href", "javascript:;")
+            {#$("th").find("a").attr("href", "javascript:;")#}
+            {#$("th").children("a").attr("href", "javascript:;")#}
+        })
+
+        function show_swal(link) {
+            link = $(link)
+
+            Swal.fire({
+                title: `Are you sure you want to delete ${link.data("title")} ?`,
+                showCancelButton: true,
+                text: "You won't be able to revert this!",
+                confirmButtonText: 'Yes Delete',
+                icon: "warning",
+                showLoaderOnConfirm: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#058908',
+                preConfirm: (login) => {
+                    return fetch(link.data("url"))
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(response.statusText)
+                            }
+                            return response.json()
+                        })
+                        .catch(error => {
+                            Swal.showValidationMessage(
+                                `Request failed: ${error}`
+                            )
+                        })
+                },
+                allowOutsideClick: () => !Swal.isLoading()
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire(
+                        'Deleted!',
+                        'Your file has been deleted.',
+                        'success'
+                    ).then((result) => {
+                        {#console.log("Delete hit")#}
+                        {#window.location.reload()#}
+                        link.closest("tr").remove()
+
+                    })
+
+                }
+            })
+        }
+
+    </script>
+{% endblock %}
 

@@ -1,9 +1,11 @@
-from django.shortcuts import render, redirect
+from django.http import JsonResponse
+from django.shortcuts import render, redirect, get_object_or_404
 
 from ..models import Project
 from . import tables as project_table
 from . import urls as project_urls
 from . import forms as project_forms
+from . import utils as project_utils
 
 
 def list_projects(request):
@@ -35,41 +37,26 @@ def add_project(request):
     if request.method == "POST":
         form.save()
         return redirect(project_urls.list_projects())
-    context = {
-        "title": "Add Project",
-        "form": {
-            "form": form,
-            "action_url": project_urls.add_projects(),
-            "method": "post"
-        },
-        "actions": [
-            {
-                "tag": "a",
-                "title": "Back",
-                "attrs": [
-                    {
-                        "name": "class",
-                        "value": "btn btn-danger"
-                    }, {
-                        "name": "href",
-                        "value": project_urls.list_projects()
-                    }
-                ],
-                "icon": "fa fa-back-arrow"
-            }, {
-                "tag": "button",
-                "title": "Submit",
-                "attrs": [
-                    {
-                        "name": "class",
-                        "value": "btn btn-success"
-                    }, {
-                        "name": "type",
-                        "value": "submit"
-                    }
-                ],
-                "icon": "fa fa-plus"
-            },
-        ]
-    }
+    context = project_utils.get_project_context(form, project_urls.add_projects(), project_urls.list_projects(),
+                                                "Add Project")
     return render(request, "add-update.html", context)
+
+
+def edit_project(request, pk):
+    project = get_object_or_404(Project, pk=pk)
+    form = project_forms.ProjectForm(request.POST or None, instance=project)
+    if request.method == "POST":
+        form.save()
+        return redirect(project_urls.list_projects())
+    context = project_utils.get_project_context(form, project_urls.update_projects(pk), project_urls.list_projects(),
+                                                "Edit {}".format(project.title))
+    return render(request, "add-update.html", context)
+
+
+def delete_project(request, pk):
+    project = get_object_or_404(Project, pk=pk)
+    project.delete()
+    return JsonResponse({
+        "success": True,
+        "message": "Project deleted!"
+    }, safe=False)
