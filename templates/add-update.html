@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block main_content %}
+    <form action="{{ form.action_url }}" method="{{ form.method }}">
+        <div class="card">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col-md-6">{{ title }}</div>
+                    <div class="col-md-6" style="text-align: end">
+                        {% for action in actions %}
+                            <a href="{{ action.href }}" class="{{ action.classes }}">
+                                <i class="{{ action.icon }}"></i>
+                                {{ action.title }}
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="card-body">
+
+                {% include "partials/form.html" with form=form.form %}
+
+            </div>
+            <div class="card-footer" style="text-align: end">
+                {% for action in actions %}
+                    <{{ action.tag }}   {% for attr in action.attrs %} {{ attr.name }}='{{ attr.value }}' {% endfor %}
+                    >
+                    <i class="{{ action.icon }}"></i>
+                    {{ action.title }}
+                    </{{ action.tag }}>
+                {% endfor %}
+        </div>
+        </div>
+    </form>
+
+{% endblock %}
+
