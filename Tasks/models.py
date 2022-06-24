@@ -1,6 +1,9 @@
 from django.db import models
+# from .project import urls as project_urls
 
 # Create your models here.
+from django.urls import reverse
+
 """
     Project
         TaskBoard
@@ -20,6 +23,13 @@ class Project(models.Model):
     description = models.TextField(max_length=200, null=True, blank=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def edit_url(self):
+        return reverse("update-projects", kwargs={"pk": self.pk})
+
+    @property
+    def delete_url(self):
+        return reverse("delete-projects", kwargs={"pk": self.pk})
 
 
 class TaskBoard(BaseModel):
